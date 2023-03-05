@@ -2,21 +2,16 @@ pipeline {
     agent any
     
     environment {
-        WEB_HOSTNAME = "app-aca.ddns.net"
+        WEB_HOSTNAME = "bnglo.zapto.org"
         WEB_URL = "https://${WEB_HOSTNAME}"
-        DOCKERHUB_USERNAME = "andreasyan"
-        DOCKERHUB_PASSWORD = credentials("dockerhub-token")
+        DOCKERHUB_USERNAME = "nydocker28"
+        DOCKERHUB_PASSWORD = credentials("docker-password")
         IMAGE_TAG = "1.0.1"
     }
     stages {
         stage('Prepare') {
             steps {
-                script {
-                    sh '''printenv &&
-                    cd applications
-                    '''
-                    sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
-                }
+                sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
             }
         }
         stage('Build Frontend') {
@@ -33,19 +28,20 @@ pipeline {
         }
         stage('Build Backend') {
             steps {
-                echo 'test'
+                // sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                echo 'yeeey'
             }
         }
-        stage('Deploy') {
-            environment {
-                DEV_SERVER_IP = "167.71.36.251"
-                // SERVER_IP = BRANCH_NAME == "develop" ? DEV_SERVER_IP : PROD_SERVER_IP
-            }
-            steps {
-                withCredentials([sshUserPrivateKey(credentialsId: "droplet-ssh-key", keyFileVariable: 'KEY_FILE')]) {
-                    sh 'ssh -o StrictHostKeyChecking=no -i ${KEY_FILE} root@${DEV_SERVER_IP} "cd /root/frontend && export IMAGE_TAG=${IMAGE_TAG} && docker compose pull && docker compose up -d"'
-                }
-            }   
-        }
+        // stage('Deploy') {
+        //     environment {
+        //         DEV_SERVER_IP = "167.71.36.251"
+        //         // SERVER_IP = BRANCH_NAME == "develop" ? DEV_SERVER_IP : PROD_SERVER_IP
+        //     }
+        //     steps {
+        //         withCredentials([sshUserPrivateKey(credentialsId: "droplet-ssh-key", keyFileVariable: 'KEY_FILE')]) {
+        //             sh 'ssh -o StrictHostKeyChecking=no -i ${KEY_FILE} root@${DEV_SERVER_IP} "cd /root/frontend && export IMAGE_TAG=${IMAGE_TAG} && docker compose pull && docker compose up -d"'
+        //         }
+        //     }   
+        // }
     }
 }
